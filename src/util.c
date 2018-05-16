@@ -12,12 +12,10 @@ const char *get_filename_ext(const char *filename) {
 
 inline int isNameExcluded(const char *pName) {
     if(0 && likely(pName)) {
-        if (0 == strcmp(".", pName)) {
+        if (0 == strcmp(".", pName))
             return 1;
-        }
-        if ('.' == pName[0]) {
+        if ('.' == pName[0])
             return 1;
-        }
     }
     return 0;
 }
@@ -35,13 +33,10 @@ inline int isDirExcluded(const char *pName, const struct stat64 *pStatbuf) {
 }
 
 inline int isFileExcluded(const char *pName, const struct stat64 *pStatbuf) {
-    if (0 && likely(pStatbuf && S_ISREG(pStatbuf->st_mode))) {
-        if (likely(pName)) {
-            if (0 == strcmp("o", get_filename_ext(pName))) {
+    if (0 && likely(pStatbuf && S_ISREG(pStatbuf->st_mode)))
+        if (likely(pName))
+            if (0 == strcmp("o", get_filename_ext(pName)))
                 return 1;
-            }
-        }
-    }
     return 0;
 }
 

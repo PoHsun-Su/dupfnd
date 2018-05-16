@@ -25,25 +25,23 @@ static char args_doc[] = "directory [directory2 ...]";
 #define OPT_NOLISTFILE  2            /* --no-listfiles */
 
 /* The options we understand. */
-static struct argp_option options[] =
-{
-    {"recursive",       'r',             0,              0, "Search recursively" },
-    {"threads",         'j',             "[0-9]+",       0, "How many threads run concurrently" },
-    {"crcmethod",       'c',             "[sw|sse|gpu]", 0, "The method to calculate CRC32" },
-    {"no-summary",       OPT_NOSUMMARY,  0,              0, "Do not display the summary" },
-    {"no-listfiles",     OPT_NOLISTFILE, 0,              0, "Do not display duplicated files" },
-    {"show-sizes",      'z',             0,              0, "Show file size" },
-    {"show-groupnum",   'g',             0,              0, "Display group number" },
-    {"silent",          's',             0,              0, "Don't produce any output" },
-    {"skip-empty-files",'e',             0,              0, "Skip zero-byte files" },
+static struct argp_option options[] = {
+    {"recursive",        'r',             0,              0, "Search recursively" },
+    {"threads",          'j',             "[0-9]+",       0, "How many threads run concurrently" },
+    {"crcmethod",        'c',             "[sw|sse|gpu]", 0, "The method to calculate CRC32" },
+    {"no-summary",        OPT_NOSUMMARY,  0,              0, "Do not display the summary" },
+    {"no-listfiles",      OPT_NOLISTFILE, 0,              0, "Do not display duplicated files" },
+    {"show-sizes",       'z',             0,              0, "Show file size" },
+    {"show-groupnum",    'g',             0,              0, "Display group number" },
+    {"silent",           's',             0,              0, "Don't produce any output" },
+    {"skip-empty-files", 'e',             0,              0, "Skip zero-byte files" },
     // {"depth",        'd', 0,              0, "Search depth" },
     // {"progress",     'p', 0,              0, "Print the progress" },
     { 0 }
 };
 
 /* Used by main to communicate with parse_opt. */
-struct arguments
-{
+struct arguments {
     char *dir;                   /* directory */
     char **moreDirs;             /* [directory2 ...] */
     int silent;
@@ -60,61 +58,58 @@ struct arguments
 
 /* Parse a single option. */
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
-{
+parse_opt (int key, char *arg, struct argp_state *state) {
     /* Get the input argument from argp_parse, which we
        know is a pointer to our arguments structure. */
     struct arguments *arguments = state->input;
 
-    switch (key)
-    {
-    case 'e':
-        arguments->skipemptyfiles = 1;
-        break;
-    case 'r':
-        arguments->recursive = 1;
-        break;
-    case 's':
-        arguments->silent = 1;
-        break;
-    case OPT_NOSUMMARY:
-        arguments->show_summary = 0;
-        break;
-    case OPT_NOLISTFILE:
-        arguments->show_files = 0;
-        break;
-    case 'g':
-        arguments->show_groupnum = 1;
-        break;
-    case 'z':
-        arguments->show_size = 1;
-        break;
-    // case 'p':
-    //     arguments->progress = 1;
-    //     break;
-    case 'j':
-        arguments->threads = arg ? atoi (arg) : 1;
-        break;
-    case 'c':
-        if (strlen(arg)) {
-            if (0 == strcasecmp("sse", arg)) {
-                arguments->crcmethod = FLAG_CRC_SSE;
-            } else {
-                arguments->crcmethod = FLAG_CRC_SW;
+    switch (key) {
+        case 'e':
+            arguments->skipemptyfiles = 1;
+            break;
+        case 'r':
+            arguments->recursive = 1;
+            break;
+        case 's':
+            arguments->silent = 1;
+            break;
+        case OPT_NOSUMMARY:
+            arguments->show_summary = 0;
+            break;
+        case OPT_NOLISTFILE:
+            arguments->show_files = 0;
+            break;
+        case 'g':
+            arguments->show_groupnum = 1;
+            break;
+        case 'z':
+            arguments->show_size = 1;
+            break;
+        // case 'p':
+        //     arguments->progress = 1;
+        //     break;
+        case 'j':
+            arguments->threads = arg ? atoi (arg) : 1;
+            break;
+        case 'c':
+            if (strlen(arg)) {
+                if (0 == strcasecmp("sse", arg))
+                    arguments->crcmethod = FLAG_CRC_SSE;
+                else
+                    arguments->crcmethod = FLAG_CRC_SW;
             }
-        }
-        break;
-    case ARGP_KEY_NO_ARGS:
-        argp_usage (state);
-        break;
-    case ARGP_KEY_ARG:
-        arguments->dir = arg;
-        arguments->moreDirs = &state->argv[state->next];
-        state->next = state->argc;
-        break;
+            break;
+        case ARGP_KEY_NO_ARGS:
+            argp_usage(state);
+            break;
+        case ARGP_KEY_ARG:
+            arguments->dir = arg;
+            arguments->moreDirs = &state->argv[state->next];
+            state->next = state->argc;
+            break;
 
-    default:
-        return ARGP_ERR_UNKNOWN;
+        default:
+            return ARGP_ERR_UNKNOWN;
     }
     return 0;
 }
@@ -150,9 +145,8 @@ int main (int argc, char **argv) {
         args.show_size = 0;
     }
 
-
     char **dirs = NULL;
-    char actualabspath[PATH_MAX+1] = {0};
+    char actualabspath[PATH_MAX + 1] = {0};
 
     /* allocate only one pointer to pointer, will realloc later if needed */
     dirs = (char **)malloc(1 * sizeof(char *));
@@ -160,12 +154,11 @@ int main (int argc, char **argv) {
         fprintf(stderr, "Error. file path too long\n");
         return -1;
     }
-    realpath(args.dir, actualabspath);
 
+    realpath(args.dir, actualabspath);
     dirs[0] = strdup(actualabspath);
 
-    if (args.moreDirs[0])
-    {
+    if (args.moreDirs[0]) {
         for (j = 0; args.moreDirs[j]; j++) {
             dirs = (char **)realloc(dirs, (j + 1) * sizeof(char *));
             if (strlen(args.moreDirs[j]) > PATH_MAX) {
@@ -179,11 +172,11 @@ int main (int argc, char **argv) {
     }
 
     dupfnd_t *pack = NULL;
-    FILE* fout = stdout;
+    FILE *fout = stdout;
     int flags = FLAG_NONE;
 
     int nThreads = args.threads;
-    if (nThreads < 1 || nThreads >100)
+    if (nThreads < 1 || nThreads > 100)
         nThreads = 1;
 
     // if (args.progress)      SETFLAG(flags, FLAG_SHOW_PROGRESS);
@@ -197,7 +190,7 @@ int main (int argc, char **argv) {
 
     pack = dupfnd_pack_init(NULL, dirs, nDir, flags, fout, nThreads);
 
-    for (i = 0; i<nDir; ++i)
+    for (i = 0; i < nDir; ++i)
         free(dirs[i]);
     free(dirs);
 
@@ -205,6 +198,5 @@ int main (int argc, char **argv) {
     dupfnd_print_result(pack);
     pack = dupfnd_pack_destory(pack);
 
-    // exit (0);
     return EXIT_SUCCESS;
 }
